@@ -117,19 +117,24 @@ class SchemaDatabaseTest extends Generic_Tests_DatabaseTestCase
     // {{{ testPDOException
     public function testPDOException()
     {
-        $expectedMessage =  'SQLSTATE[42000]: Syntax error or access violation: ' .
-                            '1064 You have an error in your SQL syntax; ' .
-                            'check the manual that corresponds to your MySQL server version ' .
-                            'for the right syntax to use near \'=InnoDB DEFAULT CHARSET=utf8mb4\' at line 7';
+        $expectedMessageRegex =
+            preg_quote(
+                'SQLSTATE[42000]: Syntax error or access violation: ' .
+                '1064 You have an error in your SQL syntax; ' .
+                'check the manual that corresponds to your '
+            ) .
+            '[a-zA-Z]*' . // match different DB names ie. MySQL & MariaDB
+            preg_quote(
+                ' server version for the right syntax to use near ' .
+                '\'=InnoDB DEFAULT CHARSET=utf8mb4\' at line 7'
+            );
 
         $this->schema->loadFile(__DIR__ . '/Fixtures/TestSyntaxError.sql');
 
         try {
             $this->schema->update();
         } catch (PDOException $e) {
-            $this->assertEquals($expectedMessage, $e->getMessage());
-            $this->assertEquals(7, $e->getLine());
-
+            $this->assertRegExp('#' . $expectedMessageRegex . '#', $e->getMessage());
             return;
         }
 
