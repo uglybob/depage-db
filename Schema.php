@@ -18,7 +18,7 @@ class Schema
     const VERSION_TAG       = '@version';
     // }}}
     // {{{ variables
-    protected $replaceFunction = array();
+    protected $replaceFunction = null;
     protected $updateData = array();
     protected $dryRun;
     // }}}
@@ -306,13 +306,17 @@ class Schema
     // {{{ setReplace
     public function setReplace($replaceFunction)
     {
-        $this->replaceFunction = $replaceFunction;
+        if (is_callable($replaceFunction)) {
+            $this->replaceFunction = $replaceFunction;
+        } else {
+            throw new Exceptions\SchemaException('Replace functіon must be valid callback.');
+        }
     }
     // }}}
     // {{{ replace
     protected function replace($tableName)
     {
-        if (is_callable($this->replaceFunction)) {
+        if (!is_null($this->replaceFunction)) {
             $tableName = call_user_func($this->replaceFunction, $tableName);
         }
 

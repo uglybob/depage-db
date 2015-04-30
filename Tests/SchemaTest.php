@@ -48,7 +48,7 @@ class SchemaTest extends PHPUnit_Framework_TestCase
 
     // {{{ testLoadSpecificFileFail
     /**
-     * @expectedException        depage\DB\Exceptions\SchemaException
+     * @expectedException        Depage\Db\Exceptions\SchemaException
      * @expectedExceptionMessage File "fileDoesntExist.sql" doesn't exist or isn't readable.
      */
     public function testLoadSpecificFileFail()
@@ -76,7 +76,7 @@ class SchemaTest extends PHPUnit_Framework_TestCase
     // }}}
     // {{{ testLoadNoTableName
     /**
-     * @expectedException               depage\DB\Exceptions\SchemaException
+     * @expectedException               Depage\Db\Exceptions\SchemaException
      * @expectedExceptionMessageRegExp  /Tablename tag missing in ".*Fixtures\/TestNoTableName\.sql"/
      */
     public function testLoadNoTableName()
@@ -88,7 +88,7 @@ class SchemaTest extends PHPUnit_Framework_TestCase
     // }}}
     // {{{ testLoadMultipleTableNames
     /**
-     * @expectedException               depage\DB\Exceptions\SchemaException
+     * @expectedException               Depage\Db\Exceptions\SchemaException
      * @expectedExceptionMessageRegExp  /More than one tablename tags in ".*Fixtures\/TestMultipleTableNames\.sql"/
      */
     public function testLoadMultipleTableNames()
@@ -98,7 +98,7 @@ class SchemaTest extends PHPUnit_Framework_TestCase
     // }}}
     // {{{ testLoadUnversionedCode
     /**
-     * @expectedException               depage\DB\Exceptions\SchemaException
+     * @expectedException               Depage\Db\Exceptions\SchemaException
      * @expectedExceptionMessageRegExp  /There is code without version tags in ".*Fixtures\/TestUnversionedCode\.sql" at line 4/
      */
     public function testLoadUnversionedCode()
@@ -108,7 +108,7 @@ class SchemaTest extends PHPUnit_Framework_TestCase
     // }}}
     // {{{ testLoadIncompleteFile
     /**
-     * @expectedException               depage\DB\Exceptions\SchemaException
+     * @expectedException               Depage\Db\Exceptions\SchemaException
      * @expectedExceptionMessageRegExp  /Incomplete statement at the end of ".*Fixtures\/TestIncompleteFile\.sql"/
      */
     public function testLoadIncompleteFile()
@@ -213,6 +213,16 @@ class SchemaTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals($expected, $this->schema->executedStatements);
+    }
+    // }}}
+    // {{{ testProcessPrefixesFail
+    /**
+     * @expectedException        Depage\Db\Exceptions\SchemaException
+     * @expectedExceptionMessage Replace functіon must be valid callback.
+     */
+    public function testProcessPrefixesFail()
+    {
+        $this->schema->setReplace('invalid callback');
     }
     // }}}
     // {{{ testProcessBackticks
@@ -379,7 +389,7 @@ class SchemaTest extends PHPUnit_Framework_TestCase
     // }}}
     // {{{ testTagSubstringException
     /**
-     * @expectedException        depage\DB\Exceptions\SchemaException
+     * @expectedException        Depage\Db\Exceptions\SchemaException
      * @expectedExceptionMessage Tags cannot be substrings of each other
      */
     public function testTagSubstringException()
