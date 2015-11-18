@@ -13,12 +13,13 @@ namespace Depage\Db;
 class SqlParser
 {
     // {{{ variables
-    protected $split        = array();
-    protected $hash         = false;
-    protected $doubleDash   = false;
-    protected $multiLine    = false;
-    protected $singleQuote  = false;
-    protected $doubleQuote  = false;
+    protected $split = array();
+    protected $hash = false;
+    protected $doubleDash = false;
+    protected $multiLine = false;
+    protected $singleQuote = false;
+    protected $doubleQuote = false;
+    protected $procedure = false;
     protected $parsedString = '';
     // }}}
 
@@ -65,7 +66,7 @@ class SqlParser
                         $this->doubleDash = true;
                     } elseif ($char == '/' && $next == '*') {
                         $this->multiLine = true;
-                    } elseif ($char == ';') {
+                    } elseif ($char == ';' && !$this->procedure) {
                         $this->append('break', $char);
                     } elseif ($char == '\'') {
                         $this->singleQuote = true;
@@ -73,6 +74,13 @@ class SqlParser
                     } elseif ($char == '"') {
                         $this->doubleQuote = true;
                         $this->append('string', $char);
+                    } elseif ('BEGIN' == strtoupper(substr($line, $i, 5))) {
+                        $this->procedure = true;
+                        $this->append('code', $char);
+                    } elseif ('END' == strtoupper(substr($line, $i-2, 3))) {
+                        $this->procedure = false;
+                        $this->append('code', $char);
+                        $this->append('break', ';');
                     } else {
                         $this->append('code', $char);
                     }
@@ -102,7 +110,7 @@ class SqlParser
             } elseif ($type == 'string') {
                 $this->parsedString .= $statement['string'];
             } elseif ($type == 'break') {
-                $finished[]         = trim($this->parsedString);
+                $finished[] = trim($this->parsedString);
                 $this->parsedString = '';
             }
         }
