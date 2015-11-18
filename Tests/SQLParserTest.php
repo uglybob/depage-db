@@ -39,6 +39,7 @@ class SqlParserTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $this->parser->parse("ALTER TABLE test COMMENT 'version 0.2'; ALTER TABLE test COMMENT 'version 0.3';\n"));
     }
     // }}}
+
     // {{{ testHashComment
     public function testHashComment()
     {
@@ -105,6 +106,7 @@ class SqlParserTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array("ALTER TABLE test COMMENT 'version 0.2'"), $this->parser->parse("'version 0.2';\n"));
     }
     // }}}
+
     // {{{ testSingleQuotedSemicolon
     public function testSingleQuotedSemicolon()
     {
@@ -119,6 +121,7 @@ class SqlParserTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array('ALTER TABLE test COMMENT "vers;ion 0.2"'), $this->parser->parse("ALTER TABLE test COMMENT \"vers;ion 0.2\";\n"));
     }
     // }}}
+
     // {{{ testSemicolonInHashComment
     public function testSemicolonInHashComment()
     {
@@ -159,6 +162,7 @@ class SqlParserTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array('ALTER TABLE test COMMENT "version 0.2"'), $this->parser->parse(" */ test COMMENT \"version 0.2\";\n"));
     }
     // }}}
+
     // {{{ testMultilineSingleQuotedString
     public function testMultilineSingleQuotedString()
     {
@@ -186,6 +190,7 @@ class SqlParserTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array("\"     \" '       '"), $this->parser->parse("\"     \" '       ';\n"));
     }
     // }}}
+
     // {{{ testEscapedSingleQuotesInString
     public function testEscapedSingleQuotesInString()
     {
@@ -198,6 +203,43 @@ class SqlParserTest extends PHPUnit_Framework_TestCase
     {
         // escaped double quotes in strings
         $this->assertEquals(array('"str\"ing"'), $this->parser->parse('"str\"ing";' . "\n"));
+    }
+    // }}}
+
+    // {{{ testProcedure
+    public function testProcedure()
+    {
+        $this->assertEquals(array('BEGIN ; END'), $this->parser->parse("BEGIN ; END\n"));
+    }
+    // }}}
+    // {{{ testProcedureMultiline
+    public function testProcedureMultiline()
+    {
+        $this->parser->parse("BEGIN\n");
+        $this->parser->parse(" ;\n");
+        $result = $this->parser->parse("END;\n");
+
+        $this->assertEquals(array('BEGIN ; END'), $result);
+    }
+    // }}}
+    // {{{ testProcedureLowerCase
+    public function testProcedureLowerCase()
+    {
+        $this->parser->parse("begin\n");
+        $this->parser->parse(" ;\n");
+        $result = $this->parser->parse("end;" . "\n");
+
+        $this->assertEquals(array('begin ; end'), $result);
+    }
+    // }}}
+    // {{{ testProcedureHashComment
+    public function testProcedureHashComment()
+    {
+        $this->parser->parse("BEGIN\n");
+        $this->parser->parse(" ; # comment\n");
+        $result = $this->parser->parse("END;\n");
+
+        $this->assertEquals(array('BEGIN ; END'), $result);
     }
     // }}}
 }
