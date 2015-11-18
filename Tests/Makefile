@@ -1,7 +1,7 @@
 RM = rm -rf
 
 test:
-	phpunit --configuration PHPUnit.xml .
+	phpunit --configuration PhpUnit.xml .
 
 clean:
 	${RM} Report
